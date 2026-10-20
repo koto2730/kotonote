@@ -40,8 +40,10 @@ kotonote は `android.permission.INTERNET` を宣言していないため、そ�
 ## What it deliberately does not do / あえてやらないこと
 
 No sixth note, no list, no folders, no save-as-file, no cloud sync, no backup, no undo for
-"clear". `allowBackup` is off and cloud backup / device transfer are excluded, so notes
-never leave the device unless you share them.
+"clear". Cloud backup is excluded, so notes are never uploaded to your Google account, and the
+app itself never transmits anything. The one exception is the system's own device-to-device
+transfer when you move to a new phone (Android 12+, depending on your device's settings): the
+notes are included in it, so they can come with you. On Android 11 and older they are not carried over.
 
 ## Requirements / 動作環境
 

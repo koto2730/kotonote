@@ -97,7 +97,7 @@ settings(key TEXT PRIMARY KEY, value TEXT)   -- 最後に開いたタブ等。Sh
 - DB には相対パスのみ（端末移行・パス変更に強く、iOS のコンテナパス変更にも同じ理由で効く）。
 - クリア = DB の blocks を削除 + `notes/<slot>/` ディレクトリを削除。**ファイル削除を先、DB を後**にしない
   （クラッシュ時に参照切れが残るより孤児ファイルが残る方がまし）→ DB を先に消し、起動時に孤児ファイルを掃除。
-- `allowBackup="false"`（kotodo と同じ。クラウドへ漏らさない方針）。`INTERNET` 権限は宣言しない。
+- バックアップ: クラウドバックアップは全除外（`data_extraction_rules.xml` の `cloud-backup`）。機種変更時の端末間移行（`device-transfer`、Android 12+）だけはデータベース・添付ファイル・設定を含め、メモを引き継げるようにする。そのため `allowBackup="true"`。Android 11 以前はクラウドバックアップ経由しかないため引き継ぎ不可。`INTERNET` 権限は宣言しない。
 
 ## 4. 保存のタイミング（「消えない」の担保）
 

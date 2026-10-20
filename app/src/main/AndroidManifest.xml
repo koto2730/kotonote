@@ -10,9 +10,17 @@
 
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
 
+    <!--
+      Backup: allowBackup stays true only so that Android's device-to-device transfer (moving to a
+      new phone) can carry the notes over. Cloud backup is switched off for everything in
+      data_extraction_rules.xml (Android 12+) and backup_rules.xml (Android 11 and older), so
+      nothing is uploaded to the user's Google account. kotonote itself never transmits anything.
+      機種変更時の端末間移行のためだけに allowBackup を true にしている。クラウドバックアップは
+      ルールファイルで全て除外している。
+    -->
     <application
         android:name=".KotonoteApp"
-        android:allowBackup="false"
+        android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
         android:icon="@mipmap/ic_launcher"

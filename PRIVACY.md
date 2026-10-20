@@ -20,9 +20,11 @@ data over the network.
 **What is stored, and where**
 
 The text you type and the voice recordings, photos, videos and drawings you add are stored only
-on your device, in the app's private storage. Other apps cannot read them. Backup and device
-transfer of this data are switched off, so it is not copied to your Google account or to a new
-phone.
+on your device, in the app's private storage. Other apps cannot read them. Cloud backup is
+switched off for this data, so it is not copied to your Google account. kotonote has no sync
+or backup feature of its own. If you move to a new phone with Android's device-to-device
+transfer (Android 12 or later), the system itself can carry your notes across, directly between
+the two phones, depending on your device's settings; kotonote does not send them anywhere.
 
 **Permissions**
 
@@ -72,8 +74,10 @@ kotonote は Android 用の付箋メモアプリです。メモの内容が端�
 **保存される内容と保存場所**
 
 入力したテキストと、追加した音声・写真・動画・お絵かきは、端末内のアプリ専用領域にのみ保存されます。
-他のアプリから読み取ることはできません。このデータはバックアップと端末間の移行の対象外にしているため、
-Google アカウントや新しい端末へコピーされることもありません。
+他のアプリから読み取ることはできません。このデータはクラウドバックアップの対象外にしているため、
+Google アカウントへコピーされることはありません。kotonote 自体には同期やバックアップの機能はありません。
+機種変更の際に Android の端末間データ移行（Android 12 以降）を使うと、端末の設定によっては、システムが
+2台の端末の間で直接メモを引き継ぐことがあります。kotonote がメモをどこかへ送信することはありません。
 
 **権限**
 

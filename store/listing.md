@@ -57,14 +57,13 @@ kotonote は、付箋のようにしか使えないメモアプリです。
 
 ■ あえてやらないこと
 ・6枚目以上の付箋、一覧画面、メモ帳としての保存
-・クラウド同期やバックアップ。内容は端末の中だけに保存されます
+・クラウド同期やクラウドバックアップ。内容は端末の中だけに保存されます（機種変更の際は、Android の端末間データ移行で引き継げる場合があります）
 
 ■ プライバシー
 ・通信しません。インターネット権限を宣言していないため、データを外へ送ることができません
 ・広告も解析ツールも入っていません
 ・マイク権限は、録音ボタンを押したときだけ使います。カメラ・ストレージの権限は不要です
 
-アプリを終了しても、再起動しても、付箋は消えません。消えるのは、あなたが「クリア」を押したときだけです。
 ```
 
 ## English
@@ -100,14 +99,14 @@ FEATURES
 
 ON PURPOSE, IT DOES NOT
 - Offer a sixth note, a list of notes, or "save as a file"
-- Sync or back up to the cloud. Your notes stay on your device
+- Sync or back up to the cloud. Your notes stay on your device (when you move to a new phone, Android's own device-to-device transfer can bring them along)
 
 PRIVACY
 - It never touches the network. The app does not declare the internet permission, so it cannot send your data anywhere
 - No ads and no analytics
 - The microphone is used only when you press record. No camera or storage permission is needed
 
-Your notes survive closing and restarting the app. They disappear only when you press Clear.
+Your notes survive closing and restarting the app.
 ```
 
 ## 提出前チェックリスト / Before you submit
