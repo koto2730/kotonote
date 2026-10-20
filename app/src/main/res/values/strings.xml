@@ -1,0 +1,50 @@
+<resources>
+    <!-- The app name is a brand, identical in every locale. -->
+    <string name="app_name" translatable="false">kotonote</string>
+
+    <string name="note_hint">Write something…</string>
+    <string name="tab_description">Note %1$d</string>
+    <string name="tab_description_filled">Note %1$d (has content)</string>
+
+    <string name="action_clear">Clear note</string>
+    <string name="clear_title">Clear this note?</string>
+    <string name="clear_message">Everything on note %1$d will be removed. This cannot be undone.</string>
+    <string name="clear_confirm">Clear</string>
+    <string name="clear_cancel">Cancel</string>
+
+    <string name="action_add">Add to note</string>
+    <string name="action_close_menu">Close menu</string>
+    <string name="action_camera">Take a photo</string>
+    <string name="action_gallery">Choose a picture or video</string>
+    <string name="action_share">Share note</string>
+    <string name="share_chooser">Share note</string>
+
+    <string name="action_video">Record a video</string>
+    <string name="action_record">Record audio</string>
+    <string name="recording_stop">Stop and attach</string>
+    <string name="recording_cancel">Discard recording</string>
+    <string name="action_paint">Draw</string>
+    <string name="paint_done">Attach drawing</string>
+    <string name="paint_cancel">Close</string>
+    <string name="paint_undo">Undo</string>
+    <string name="paint_eraser">Eraser</string>
+    <string name="paint_clear">Clear drawing</string>
+    <string name="paint_color">Pen color</string>
+    <string name="paint_size">Pen size</string>
+    <string name="paint_discard_title">Discard this drawing?</string>
+    <string name="paint_discard_message">What you drew will be lost.</string>
+    <string name="paint_discard">Discard</string>
+    <string name="paint_keep">Keep drawing</string>
+    <string name="paint_save_failed">Could not save the drawing.</string>
+    <string name="attachment_paint">Drawing</string>
+    <string name="attachment_image">Picture</string>
+    <string name="attachment_audio">Voice recording</string>
+    <string name="attachment_video">Video</string>
+    <string name="mic_denied">Microphone permission is needed to record.</string>
+    <string name="record_failed">Could not record audio.</string>
+    <string name="video_too_long">Videos can be up to %1$d seconds.</string>
+    <string name="play_failed">Could not play this.</string>
+    <string name="limit_reached">A note holds up to %1$d attachments.</string>
+    <string name="import_failed">Could not add that file.</string>
+    <string name="viewer_failed">Could not open this picture.</string>
+</resources>

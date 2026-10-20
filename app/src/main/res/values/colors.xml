@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+
+    <!-- Header chrome: same 鉄紺 slate as kotodo, so the two apps read as a family. -->
+    <color name="slate_900">#FF1B2429</color>
+    <color name="slate_800">#FF263238</color>
+    <color name="slate_600">#FF37474F</color>
+
+    <color name="vermilion_700">#FFC63D14</color>
+    <color name="vermilion_600">#FFE64A19</color>
+
+    <!-- The five sticky-note surfaces. Index = slot. -->
+    <color name="note_1">#FFFFF59D</color>
+    <color name="note_2">#FFF8BBD0</color>
+    <color name="note_3">#FFB3E5FC</color>
+    <color name="note_4">#FFC5E1A5</color>
+    <color name="note_5">#FFFFCC80</color>
+
+    <color name="note_text">#FF212121</color>
+    <color name="note_hint">#80212121</color>
+
+    <integer-array name="note_colors">
+        <item>@color/note_1</item>
+        <item>@color/note_2</item>
+        <item>@color/note_3</item>
+        <item>@color/note_4</item>
+        <item>@color/note_5</item>
+    </integer-array>
+</resources>

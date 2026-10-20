@@ -1,0 +1,47 @@
+<resources>
+    <string name="note_hint">ここにメモ…</string>
+    <string name="tab_description">付箋 %1$d</string>
+    <string name="tab_description_filled">付箋 %1$d（入力あり）</string>
+
+    <string name="action_clear">付箋をクリア</string>
+    <string name="clear_title">この付箋を消しますか？</string>
+    <string name="clear_message">付箋 %1$d の内容がすべて消えます。元に戻せません。</string>
+    <string name="clear_confirm">消す</string>
+    <string name="clear_cancel">やめる</string>
+
+    <string name="action_add">付箋に追加</string>
+    <string name="action_close_menu">メニューを閉じる</string>
+    <string name="action_camera">写真を撮る</string>
+    <string name="action_gallery">画像・動画を選ぶ</string>
+    <string name="action_share">付箋を共有</string>
+    <string name="share_chooser">付箋を共有</string>
+
+    <string name="action_video">動画を撮る</string>
+    <string name="action_record">録音する</string>
+    <string name="recording_stop">止めて貼り付け</string>
+    <string name="recording_cancel">録音を破棄</string>
+    <string name="action_paint">お絵かき</string>
+    <string name="paint_done">絵を貼り付け</string>
+    <string name="paint_cancel">閉じる</string>
+    <string name="paint_undo">元に戻す</string>
+    <string name="paint_eraser">消しゴム</string>
+    <string name="paint_clear">全部消す</string>
+    <string name="paint_color">ペンの色</string>
+    <string name="paint_size">ペンの太さ</string>
+    <string name="paint_discard_title">この絵を捨てますか？</string>
+    <string name="paint_discard_message">描いた内容は失われます。</string>
+    <string name="paint_discard">捨てる</string>
+    <string name="paint_keep">続ける</string>
+    <string name="paint_save_failed">絵を保存できませんでした。</string>
+    <string name="attachment_paint">お絵かき</string>
+    <string name="attachment_image">画像</string>
+    <string name="attachment_audio">録音</string>
+    <string name="attachment_video">動画</string>
+    <string name="mic_denied">録音にはマイクの許可が必要です。</string>
+    <string name="record_failed">録音できませんでした。</string>
+    <string name="video_too_long">動画は%1$d秒までです。</string>
+    <string name="play_failed">再生できませんでした。</string>
+    <string name="limit_reached">1枚の付箋に貼れる添付は%1$d個までです。</string>
+    <string name="import_failed">ファイルを追加できませんでした。</string>
+    <string name="viewer_failed">画像を開けませんでした。</string>
+</resources>

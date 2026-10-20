@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Muted, darker versions of the five notes; still distinguishable from each other. -->
+    <color name="note_1">#FF6D6A2E</color>
+    <color name="note_2">#FF7A3F55</color>
+    <color name="note_3">#FF2E5F78</color>
+    <color name="note_4">#FF4A6B36</color>
+    <color name="note_5">#FF85561F</color>
+
+    <color name="note_text">#FFF5F5F5</color>
+    <color name="note_hint">#80F5F5F5</color>
+</resources>
