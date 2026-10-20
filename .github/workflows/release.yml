@@ -1,7 +1,8 @@
 name: Release
 
-# Pushing a tag like v1.0.0 builds a signed release APK and attaches it to a
-# new GitHub Release. Requires four repository secrets, set once under
+# Pushing a tag like v1.0.0 builds a signed release APK (for sideloading) and a
+# signed AAB (for Google Play), and attaches both to a new draft GitHub Release.
+# Requires four repository secrets, set once under
 # Settings > Secrets and variables > Actions (see README > Signing):
 #   KEYSTORE_BASE64    base64 of the .jks/.keystore file
 #   KEYSTORE_PASSWORD
@@ -37,20 +38,24 @@ jobs:
       - name: Decode signing keystore
         run: base64 -d <<< "${{ secrets.KEYSTORE_BASE64 }}" > "${{ runner.temp }}/release.keystore"
 
-      - name: Build signed release APK
+      - name: Build signed release APK and AAB
         env:
           KOTONOTE_STORE_FILE: ${{ runner.temp }}/release.keystore
           KOTONOTE_STORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
           KOTONOTE_KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
           KOTONOTE_KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
-        run: ./gradlew assembleRelease --stacktrace
+        run: ./gradlew assembleRelease bundleRelease --stacktrace
 
-      - name: Name the APK after the tag
-        run: cp app/build/outputs/apk/release/app-release.apk "kotonote-${{ github.ref_name }}.apk"
+      - name: Name the files after the tag
+        run: |
+          cp app/build/outputs/apk/release/app-release.apk "kotonote-${{ github.ref_name }}.apk"
+          cp app/build/outputs/bundle/release/app-release.aab "kotonote-${{ github.ref_name }}.aab"
 
       - name: Create GitHub Release (draft)
         uses: softprops/action-gh-release@v2
         with:
-          files: kotonote-${{ github.ref_name }}.apk
+          files: |
+            kotonote-${{ github.ref_name }}.apk
+            kotonote-${{ github.ref_name }}.aab
           generate_release_notes: true
           draft: true

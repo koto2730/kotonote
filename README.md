@@ -78,9 +78,9 @@ Unit tests and lint:
 Every push to `main` and every PR runs unit tests, lint and a debug build via
 [`.github/workflows/ci.yml`](.github/workflows/ci.yml). It needs no secrets.
 
-Pushing a tag like `v1.0.0` builds a **signed** release APK and attaches it to a **draft**
-GitHub Release via [`.github/workflows/release.yml`](.github/workflows/release.yml). The
-release is a draft on purpose: nothing is public until you check the APK and click
+Pushing a tag like `v1.0.0` builds a **signed** release APK (for sideloading) and a signed AAB
+(for Google Play) and attaches both to a **draft** GitHub Release via [`.github/workflows/release.yml`](.github/workflows/release.yml). The
+release is a draft on purpose: nothing is public until you check the files and click
 **Publish release**.
 
 ### Signing / 署名
@@ -122,6 +122,7 @@ survives its source being deleted from the gallery. Saves are debounced (about 0
 flushed when the app leaves the foreground. Files that no note refers to are swept at start-up.
 
 Design notes and decisions (Japanese): [docs/DESIGN.md](docs/DESIGN.md)
+Privacy policy: [PRIVACY.md](PRIVACY.md) · Play Store listing text and assets: [store/](store/listing.md)
 
 ## iOS
 

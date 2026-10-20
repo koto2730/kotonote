@@ -1,0 +1,105 @@
+# kotonote Privacy Policy / プライバシーポリシー
+
+Last updated / 最終更新: 2026-10-20
+
+## English
+
+kotonote is a sticky-note app for Android. It is built so that your notes never leave your
+device.
+
+**What kotonote collects**
+
+Nothing. kotonote does not collect, store on a server, transmit, sell or share any personal
+data. It has no accounts, no ads, no analytics and no crash reporting.
+
+**No network access**
+
+The app does not declare the Android `INTERNET` permission, so it is technically unable to send
+data over the network.
+
+**What is stored, and where**
+
+The text you type and the voice recordings, photos, videos and drawings you add are stored only
+on your device, in the app's private storage. Other apps cannot read them. Backup and device
+transfer of this data are switched off, so it is not copied to your Google account or to a new
+phone.
+
+**Permissions**
+
+- **Microphone (`RECORD_AUDIO`)**: used only while you are recording a voice note. Recordings
+  are saved in the note you are editing and are not sent anywhere.
+- kotonote does not need the camera or storage permission. Taking a photo or video opens your
+  camera app, and choosing a picture or video opens the system photo picker; only the item you
+  pick is copied into the note.
+
+**Sharing**
+
+kotonote sends a note's contents to another app only when you press the share button and choose
+a destination. What that app does with the content is governed by that app's own policy.
+
+**Deleting your data**
+
+Press the clear button to delete a note and its attachments, or uninstall the app to delete
+everything it has stored.
+
+**Children**
+
+kotonote collects no personal data from anyone, including children.
+
+**Changes**
+
+If this policy changes, the new version will be published at the same address with a new "last
+updated" date.
+
+**Contact**
+
+Questions: open an issue at https://github.com/koto2730/kotonote/issues
+
+## 日本語
+
+kotonote は Android 用の付箋メモアプリです。メモの内容が端末の外へ出ないように作られています。
+
+**収集する情報**
+
+ありません。kotonote は、個人情報を収集・サーバーへの保存・送信・販売・共有しません。アカウント、
+広告、利用状況の解析、クラッシュレポートもありません。
+
+**通信**
+
+このアプリは Android の `INTERNET` 権限を宣言していません。そのため、技術的にネットワークでデータを
+送信することができません。
+
+**保存される内容と保存場所**
+
+入力したテキストと、追加した音声・写真・動画・お絵かきは、端末内のアプリ専用領域にのみ保存されます。
+他のアプリから読み取ることはできません。このデータはバックアップと端末間の移行の対象外にしているため、
+Google アカウントや新しい端末へコピーされることもありません。
+
+**権限**
+
+- **マイク（`RECORD_AUDIO`）**: 録音している間だけ使います。録音は編集中の付箋に保存され、どこへも
+  送信されません。
+- カメラ・ストレージの権限は使いません。写真や動画の撮影はカメラアプリを呼び出し、画像や動画の選択は
+  システムのフォトピッカーを開きます。選んだものだけが付箋にコピーされます。
+
+**共有**
+
+付箋の内容が他のアプリへ渡るのは、あなたが共有ボタンを押して送り先を選んだときだけです。渡された
+内容の扱いは、そのアプリ自身のポリシーに従います。
+
+**データの削除**
+
+「クリア」ボタンで付箋と添付ファイルが削除されます。アプリをアンインストールすると、保存されている
+すべてのデータが削除されます。
+
+**子どもについて**
+
+kotonote は、子どもを含め、誰からも個人情報を収集しません。
+
+**変更について**
+
+このポリシーを変更する場合は、同じ URL で新しい版を公開し、最終更新日を更新します。
+
+**お問い合わせ**
+
+https://github.com/koto2730/kotonote/issues までお寄せください。
