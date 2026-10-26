@@ -41,6 +41,14 @@
     <string name="record_failed">録音できませんでした。</string>
     <string name="video_too_long">動画は%1$d秒までです。</string>
     <string name="play_failed">再生できませんでした。</string>
+    <string name="thumb_size_title">サムネイルのサイズ</string>
+    <string name="thumb_small">小</string>
+    <string name="thumb_medium">中</string>
+    <string name="thumb_large">大</string>
+    <plurals name="share_in_title">
+        <item quantity="other">%d個をどの付箋に貼りますか？</item>
+    </plurals>
+    <string name="share_in_skipped">あと%1$d個しか貼れないため、残りは取り込みませんでした。</string>
     <string name="limit_reached">1枚の付箋に貼れる添付は%1$d個までです。</string>
     <string name="import_failed">ファイルを追加できませんでした。</string>
     <string name="viewer_failed">画像を開けませんでした。</string>

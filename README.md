@@ -25,10 +25,13 @@ kotonote は `android.permission.INTERNET` を宣言していないため、そ�
 - **Text and attachments in one flow** — attachments sit inside the text as small icons, so
   you can write around them. Press delete/backspace on an icon and the attachment is removed.
 - **Voice** — record up to 5 minutes; tap the icon to play, tap again to stop.
-- **Pictures** — take a photo or pick one; tap the icon to view it full screen.
-- **Video** — record or pick up to 1 minute; tap the icon to play it.
+- **Pictures** — take a photo or pick one. It shows as a thumbnail in the text; tap it to view it
+  full screen. Long-press a thumbnail to make it small, medium or large.
+- **Share into kotonote** — share a picture or video (a screenshot, say) from any app and choose
+  which of the five notes gets it.
+- **Video** — record or pick up to 1 minute; it shows its first frame, tap to play it.
 - **Drawing** — a finger-paint sheet (6 colours, 3 pen sizes, eraser, undo, clear); tap the
-  icon later to keep drawing on it.
+  thumbnail later to keep drawing on it.
 - **Up to 10 attachments per note.**
 - **One-tap clear** — bottom-left button, with a confirmation. It clears the current note
   and deletes its files.

@@ -40,6 +40,9 @@ public class Block {
 
     public long durationMs;
 
+    /** Thumbnail size, a {@link ThumbnailSpec} level. Only pictures and videos use it. */
+    public int sizeLevel;
+
     public long createdAt;
 
     public BlockType blockType() {
@@ -56,6 +59,7 @@ public class Block {
         b.filePath = filePath;
         b.mime = mime;
         b.durationMs = durationMs;
+        b.sizeLevel = sizeLevel;
         b.createdAt = createdAt;
         return b;
     }

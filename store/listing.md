@@ -47,9 +47,11 @@ kotonote は、付箋のようにしか使えないメモアプリです。
 
 ■ できること
 ・5枚の付箋を色分けしたタブで切り替え（黄・ピンク・青・緑・オレンジ）。入力のあるタブは色が塗られます
-・テキストと一緒に、音声・写真・動画・お絵かきを貼り付け。貼ったものは小さなアイコンとして文章の中に並びます
+・テキストと一緒に、音声・写真・動画・お絵かきを貼り付け。写真・動画・お絵かきはサムネイルとして、文章の中に並びます
+・サムネイルは長押しで小・中・大に変更
+・スクリーンショットなど、他のアプリで共有した画像や動画を、5枚のうち好きな付箋に貼れます
 ・録音は5分まで、動画は1分まで、添付は1枚につき10個まで
-・アイコンをタップすると再生・表示。お絵かきは続きから描き足せます
+・タップすると再生・表示。お絵かきは続きから描き足せます
 ・アイコンをキーボードの削除キーで消すと、添付も一緒に削除されます
 ・ワンタップでクリア（確認ダイアログつき）
 ・共有ボタンで、文章と添付を他のアプリへ送れます
@@ -89,9 +91,11 @@ You get five notes. No list screen, no file names, no folders, no search. Open t
 
 FEATURES
 - Five notes in colour-coded tabs (yellow, pink, blue, green, orange). A tab's dot is filled when its note has something on it
-- Put voice recordings, photos, videos and drawings right into the text. They appear as small icons in the flow of your writing
+- Put voice recordings, photos, videos and drawings right into the text. Pictures, videos and drawings show as thumbnails in the flow of your writing
+- Long-press a thumbnail to make it small, medium or large
+- Share a screenshot, picture or video from any app and choose which of the five notes gets it
 - Recordings up to 5 minutes, videos up to 1 minute, up to 10 attachments per note
-- Tap an icon to play or view it. Drawings can be reopened and drawn on again
+- Tap an attachment to play or view it. Drawings can be reopened and drawn on again
 - Press delete on an icon with the keyboard and the attachment is removed too
 - Clear a note in one tap (with a confirmation)
 - Share the text and attachments to other apps with the share button

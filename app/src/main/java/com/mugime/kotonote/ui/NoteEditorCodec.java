@@ -31,7 +31,7 @@ import java.util.Set;
  */
 public final class NoteEditorCodec {
 
-    public static final String OBJECT_CHAR = "￼";
+    public static final String OBJECT_CHAR = "\uFFFC";
 
     private NoteEditorCodec() {
     }
@@ -78,13 +78,13 @@ public final class NoteEditorCodec {
     }
 
     /** Builds the editor text for a note. Attachments become icon characters. */
-    public static Editable build(List<Block> blocks, Context context, int sizePx, int tintColor) {
+    public static Editable build(List<Block> blocks, AttachmentLook look) {
         SpannableStringBuilder out = new SpannableStringBuilder();
         for (Block b : blocks) {
             if (b.blockType().isAttachment()) {
                 int at = out.length();
                 out.append(OBJECT_CHAR);
-                out.setSpan(new AttachmentSpan(icon(context, b.blockType(), sizePx, tintColor), b),
+                out.setSpan(new AttachmentSpan(look.placeholder(b, false), b),
                         at, at + 1, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
             } else if (b.text != null) {
                 out.append(b.text);
@@ -130,7 +130,7 @@ public final class NoteEditorCodec {
         List<AttachmentSpan> live = new ArrayList<>();
         for (AttachmentSpan span : text.getSpans(0, text.length(), AttachmentSpan.class)) {
             int start = text.getSpanStart(span);
-            if (text.getSpanEnd(span) - start == 1 && text.charAt(start) == '￼') {
+            if (text.getSpanEnd(span) - start == 1 && text.charAt(start) == '\uFFFC') {
                 live.add(span);
             }
         }
@@ -141,7 +141,7 @@ public final class NoteEditorCodec {
     public static boolean stripStray(Editable text) {
         boolean changed = false;
         for (int i = text.length() - 1; i >= 0; i--) {
-            if (text.charAt(i) == '￼'
+            if (text.charAt(i) == '\uFFFC'
                     && text.getSpans(i, i + 1, AttachmentSpan.class).length == 0) {
                 text.delete(i, i + 1);
                 changed = true;

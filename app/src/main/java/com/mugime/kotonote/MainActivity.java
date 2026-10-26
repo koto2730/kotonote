@@ -7,8 +7,11 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.content.res.TypedArray;
+import android.graphics.Bitmap;
+import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -16,12 +19,14 @@ import android.text.Editable;
 import android.text.Layout;
 import android.text.Spannable;
 import android.text.TextWatcher;
+import android.view.Gravity;
 import android.view.GestureDetector;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.MimeTypeMap;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -37,6 +42,7 @@ import androidx.core.view.WindowCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.core.view.WindowInsetsControllerCompat;
 
+import com.google.android.material.color.MaterialColors;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.tabs.TabLayout;
 import com.mugime.kotonote.data.NoteRepository;
@@ -49,11 +55,13 @@ import com.mugime.kotonote.files.ShareHelper;
 import com.mugime.kotonote.media.AudioPlayer;
 import com.mugime.kotonote.media.AudioRecorder;
 import com.mugime.kotonote.media.MediaInfo;
+import com.mugime.kotonote.ui.AttachmentLook;
 import com.mugime.kotonote.ui.AttachmentSpan;
 import com.mugime.kotonote.ui.CaptureVideoContract;
 import com.mugime.kotonote.ui.ImageViewerActivity;
 import com.mugime.kotonote.ui.NoteEditorCodec;
 import com.mugime.kotonote.ui.PaintActivity;
+import com.mugime.kotonote.ui.ThumbnailLoader;
 import com.mugime.kotonote.ui.VideoPlayerActivity;
 
 import java.io.File;
@@ -61,6 +69,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -114,6 +123,25 @@ public class MainActivity extends AppCompatActivity {
     /** The audio attachment that is playing right now, if any. */
     private Block playingBlock;
 
+    private AttachmentLook look;
+    private ThumbnailLoader thumbs;
+    /** Where the finger last went down on the editor, for long-press hit testing. */
+    private float lastDownX;
+    private float lastDownY;
+
+    /** Pictures and videos shared into the app, waiting for their note to finish loading. */
+    private static final class PendingImport {
+        final int slot;
+        final List<Uri> uris;
+
+        PendingImport(int slot, List<Uri> uris) {
+            this.slot = slot;
+            this.uris = uris;
+        }
+    }
+
+    private PendingImport pendingImport;
+
     private final Runnable saveRunnable = this::saveNow;
     private final Runnable recordTick = new Runnable() {
         @Override
@@ -160,6 +188,9 @@ public class MainActivity extends AppCompatActivity {
         repo = new NoteRepository(this);
         store = new AttachmentStore(this);
         recorder = new AudioRecorder(this);
+        float density = getResources().getDisplayMetrics().density;
+        thumbs = new ThumbnailLoader(store, density);
+        look = new AttachmentLook(this, getColor(R.color.note_text), iconSize(), this::contentWidthPx);
         prefs = getSharedPreferences(PREFS, MODE_PRIVATE);
         if (savedInstanceState != null) {
             pendingPhoto = savedInstanceState.getString(STATE_PENDING_PHOTO);
@@ -188,6 +219,15 @@ public class MainActivity extends AppCompatActivity {
         }
         showCurrent();
         repo.filledSlots(set -> runOnUiThread(() -> applyFilled(set)));
+        if (savedInstanceState == null) {
+            handleShareIntent(getIntent());
+        }
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        handleShareIntent(intent);
     }
 
     private void setUpWindow() {
@@ -287,7 +327,21 @@ public class MainActivity extends AppCompatActivity {
             }
         });
         binding.editor.setOnTouchListener((v, event) -> {
+            if (event.getActionMasked() == MotionEvent.ACTION_DOWN) {
+                lastDownX = event.getX();
+                lastDownY = event.getY();
+            }
             taps.onTouchEvent(event);
+            return false;
+        });
+        // Long-pressing a picture or video chooses its thumbnail size. Returning true keeps
+        // the editor from starting a text selection on the icon character.
+        binding.editor.setOnLongClickListener(v -> {
+            AttachmentSpan span = spanAt(lastDownX, lastDownY);
+            if (span != null && AttachmentLook.isVisual(span.block)) {
+                showSizeMenu(span.block);
+                return true;
+            }
             return false;
         });
     }
@@ -367,13 +421,23 @@ public class MainActivity extends AppCompatActivity {
             if (slot != currentSlot || isDestroyed()) {
                 return;
             }
-            Editable content = NoteEditorCodec.build(
-                    blocks, this, iconSize(), getColor(R.color.note_text));
+            Editable content = NoteEditorCodec.build(blocks, look);
             setEditorContent(content);
+            // The cursor sits at the end, which scrolls a tall note (thumbnails make them tall)
+            // to its bottom; a sticky note should open at the top.
+            binding.editor.postDelayed(() -> {
+                if (!isDestroyed() && loadedSlot == slot) {
+                    binding.editor.scrollTo(0, 0);
+                }
+            }, 100);
             loadedSlot = slot;
             binding.editor.setEnabled(true);
             setFilled(slot, !blocks.isEmpty());
             updateShareEnabled();
+            loadThumbnails();
+            if (pendingImport != null && pendingImport.slot == slot) {
+                runPendingImport();
+            }
         }));
     }
 
@@ -478,14 +542,20 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void onPicked(Uri uri) {
-        if (uri == null) {
-            return;
+        if (uri != null) {
+            importUri(uri, currentSlot);
         }
-        final int slot = currentSlot;
+    }
+
+    /** Copies a picture or video into the note's storage, then puts it into the note. */
+    private void importUri(Uri uri, int slot) {
         repo.io(() -> {
             File file = null;
             try {
                 String mime = getContentResolver().getType(uri);
+                if (mime != null && !mime.startsWith("image/") && !mime.startsWith("video/")) {
+                    throw new IOException("not a picture or video: " + mime);
+                }
                 boolean video = mime != null && mime.startsWith("video/");
                 String ext = MimeTypeMap.getSingleton().getExtensionFromMimeType(mime);
                 file = store.newFile(slot, ext == null ? (video ? "mp4" : "jpg") : ext);
@@ -611,6 +681,7 @@ public class MainActivity extends AppCompatActivity {
             for (AttachmentSpan span : text.getSpans(0, text.length(), AttachmentSpan.class)) {
                 if (old.equals(span.block.filePath)) {
                     span.block.filePath = rel;
+                    refreshAttachment(span.block, false);
                     contentChanged();
                     saveNow();
                     return;
@@ -715,22 +786,7 @@ public class MainActivity extends AppCompatActivity {
 
     /** Swaps the icon of the span that carries this block (mic or stop). */
     private void setAudioIcon(Block block, boolean active) {
-        Editable text = binding.editor.getText();
-        for (AttachmentSpan old : text.getSpans(0, text.length(), AttachmentSpan.class)) {
-            if (old.block != block) {
-                continue;
-            }
-            int start = text.getSpanStart(old);
-            int end = text.getSpanEnd(old);
-            suppressWatcher = true;
-            text.removeSpan(old);
-            text.setSpan(new AttachmentSpan(
-                            NoteEditorCodec.icon(this, block.blockType(), iconSize(),
-                                    getColor(R.color.note_text), active), block),
-                    start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-            suppressWatcher = false;
-            return;
-        }
+        replaceDrawable(block, look.placeholder(block, active));
     }
 
     private static int slotOf(String relativePath) {
@@ -762,47 +818,54 @@ public class MainActivity extends AppCompatActivity {
 
         suppressWatcher = true;
         text.replace(from, to, NoteEditorCodec.OBJECT_CHAR);
-        text.setSpan(new AttachmentSpan(
-                        NoteEditorCodec.icon(this, block.blockType(), iconSize(),
-                                getColor(R.color.note_text)), block),
+        text.setSpan(new AttachmentSpan(look.placeholder(block, false), block),
                 from, from + 1, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
         suppressWatcher = false;
         binding.editor.setSelection(from + 1);
         contentChanged();
         saveNow();
+        loadThumbnail(block);
     }
 
-    /** Opens the attachment whose icon sits under the tapped point, if there is one. */
-    private void openAttachmentAt(float px, float py) {
+    /** The attachment icon or thumbnail under a point in the editor, or null. */
+    private AttachmentSpan spanAt(float px, float py) {
         Layout layout = binding.editor.getLayout();
         Editable text = binding.editor.getText();
         if (layout == null || text.length() == 0) {
-            return;
+            return null;
         }
         float x = px - binding.editor.getTotalPaddingLeft() + binding.editor.getScrollX();
         float y = py - binding.editor.getTotalPaddingTop() + binding.editor.getScrollY();
         if (y < 0) {
-            return;
+            return null;
         }
         int line = layout.getLineForVertical((int) y);
         if (y > layout.getLineBottom(line)) {
-            return;
+            return null;
         }
         int offset = layout.getOffsetForHorizontal(line, x);
         AttachmentSpan[] spans = text.getSpans(
                 Math.max(0, offset - 1), Math.min(text.length(), offset + 1), AttachmentSpan.class);
         for (AttachmentSpan span : spans) {
             int start = text.getSpanStart(span);
-            int end = text.getSpanEnd(span);
             if (layout.getLineForOffset(start) != line) {
                 continue;
             }
+            // The icon occupies its own width starting at the character's position.
             float x0 = layout.getPrimaryHorizontal(start);
-            float x1 = layout.getPrimaryHorizontal(end);
-            if (x >= Math.min(x0, x1) && x <= Math.max(x0, x1)) {
-                openAttachment(span);
-                return;
+            float x1 = x0 + span.getDrawable().getBounds().width();
+            if (x >= x0 && x <= x1) {
+                return span;
             }
+        }
+        return null;
+    }
+
+    /** Opens the attachment whose icon sits under the tapped point, if there is one. */
+    private void openAttachmentAt(float px, float py) {
+        AttachmentSpan span = spanAt(px, py);
+        if (span != null) {
+            openAttachment(span);
         }
     }
 
@@ -828,6 +891,228 @@ public class MainActivity extends AppCompatActivity {
                 break;
             default:
                 break;
+        }
+    }
+
+    // ---- thumbnails ----------------------------------------------------------------
+
+    /** Width of the note's text area, which the large thumbnail size fills. */
+    private int contentWidthPx() {
+        int width = binding.editor.getWidth();
+        if (width <= 0) {
+            width = getResources().getDisplayMetrics().widthPixels;
+        }
+        return Math.max(dp(120),
+                width - binding.editor.getPaddingLeft() - binding.editor.getPaddingRight());
+    }
+
+    private void loadThumbnails() {
+        Editable text = binding.editor.getText();
+        for (AttachmentSpan span : text.getSpans(0, text.length(), AttachmentSpan.class)) {
+            loadThumbnail(span.block);
+        }
+    }
+
+    /** Fetches the thumbnail of a picture or video and swaps it in for its placeholder. */
+    private void loadThumbnail(Block block) {
+        if (!AttachmentLook.isVisual(block) || block.filePath == null) {
+            return;
+        }
+        final String path = block.filePath;
+        final int level = block.sizeLevel;
+        final int edge = look.edgePx(block);
+        thumbs.load(block, edge, bitmap -> {
+            // The attachment may have been deleted, resized or redrawn while this was loading.
+            if (bitmap == null || isDestroyed() || !path.equals(block.filePath)
+                    || level != block.sizeLevel) {
+                return;
+            }
+            replaceDrawable(block, look.thumbnail(bitmap));
+        });
+    }
+
+    /**
+     * Shows the attachment afresh after its file or size changed: the cached thumbnail at once
+     * if there is one, otherwise a placeholder of the right size until it is made.
+     */
+    private void refreshAttachment(Block block, boolean active) {
+        Bitmap cached = AttachmentLook.isVisual(block) ? thumbs.cached(block, look.edgePx(block)) : null;
+        replaceDrawable(block, cached != null ? look.thumbnail(cached) : look.placeholder(block, active));
+        if (cached == null) {
+            loadThumbnail(block);
+        }
+    }
+
+    /** Swaps the picture drawn for the span that carries {@code block}. */
+    private void replaceDrawable(Block block, Drawable drawable) {
+        Editable text = binding.editor.getText();
+        for (AttachmentSpan old : text.getSpans(0, text.length(), AttachmentSpan.class)) {
+            if (old.block != block) {
+                continue;
+            }
+            int start = text.getSpanStart(old);
+            int end = text.getSpanEnd(old);
+            if (end - start != 1) {
+                return;
+            }
+            suppressWatcher = true;
+            text.removeSpan(old);
+            text.setSpan(new AttachmentSpan(drawable, block),
+                    start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+            suppressWatcher = false;
+            return;
+        }
+    }
+
+    private void showSizeMenu(Block block) {
+        String[] labels = {
+                getString(R.string.thumb_small),
+                getString(R.string.thumb_medium),
+                getString(R.string.thumb_large)};
+        new MaterialAlertDialogBuilder(this)
+                .setTitle(R.string.thumb_size_title)
+                .setSingleChoiceItems(labels, block.sizeLevel, (dialog, which) -> {
+                    dialog.dismiss();
+                    if (which != block.sizeLevel) {
+                        block.sizeLevel = which;
+                        refreshAttachment(block, false);
+                        contentChanged();
+                        saveNow();
+                    }
+                })
+                .show();
+    }
+
+    // ---- shared into the app -------------------------------------------------------
+
+    /** A picture or video shared from another app (a screenshot, say): ask which note gets it. */
+    private void handleShareIntent(Intent intent) {
+        if (intent == null) {
+            return;
+        }
+        String action = intent.getAction();
+        List<Uri> uris = new ArrayList<>();
+        if (Intent.ACTION_SEND.equals(action)) {
+            Uri uri = streamExtra(intent);
+            if (uri != null) {
+                uris.add(uri);
+            }
+        } else if (Intent.ACTION_SEND_MULTIPLE.equals(action)) {
+            uris.addAll(streamListExtra(intent));
+        } else {
+            return;
+        }
+        // Each share is handled once, even if the activity is recreated.
+        setIntent(new Intent(Intent.ACTION_MAIN));
+        if (uris.isEmpty()) {
+            return;
+        }
+        repo.filledSlots(set -> runOnUiThread(() -> {
+            if (!isDestroyed()) {
+                showSlotPicker(uris, set);
+            }
+        }));
+    }
+
+    @SuppressWarnings("deprecation")
+    private static Uri streamExtra(Intent intent) {
+        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU
+                ? intent.getParcelableExtra(Intent.EXTRA_STREAM, Uri.class)
+                : (Uri) intent.getParcelableExtra(Intent.EXTRA_STREAM);
+    }
+
+    @SuppressWarnings("deprecation")
+    private static List<Uri> streamListExtra(Intent intent) {
+        List<Uri> list = Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU
+                ? intent.getParcelableArrayListExtra(Intent.EXTRA_STREAM, Uri.class)
+                : intent.<Uri>getParcelableArrayListExtra(Intent.EXTRA_STREAM);
+        return list == null ? new ArrayList<>() : list;
+    }
+
+    /** Five coloured tabs to pick from; the note you were on is ringed. */
+    private void showSlotPicker(List<Uri> uris, Set<Integer> filledSlots) {
+        LinearLayout row = new LinearLayout(this);
+        row.setOrientation(LinearLayout.HORIZONTAL);
+        row.setGravity(Gravity.CENTER);
+        row.setPadding(dp(8), dp(16), dp(8), dp(8));
+        int onSurface = MaterialColors.getColor(row, com.google.android.material.R.attr.colorOnSurface);
+        final androidx.appcompat.app.AlertDialog[] dialog = new androidx.appcompat.app.AlertDialog[1];
+
+        for (int i = 0; i < NoteRules.SLOT_COUNT; i++) {
+            final int slot = i;
+            boolean isFilled = filledSlots.contains(i);
+            TextView dot = new TextView(this);
+            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(dp(48), dp(48));
+            lp.setMargins(dp(6), 0, dp(6), 0);
+            dot.setLayoutParams(lp);
+            dot.setGravity(Gravity.CENTER);
+            dot.setText(String.valueOf(i + 1));
+            dot.setTextSize(16);
+            dot.setTypeface(dot.getTypeface(), android.graphics.Typeface.BOLD);
+            GradientDrawable bg = new GradientDrawable();
+            bg.setShape(GradientDrawable.OVAL);
+            if (isFilled) {
+                bg.setColor(noteColors[i]);
+                dot.setTextColor(getColor(R.color.note_text));
+            } else {
+                bg.setColor(0x00000000);
+                bg.setStroke(dp(2), noteColors[i]);
+                dot.setTextColor(onSurface);
+            }
+            if (i == currentSlot) {
+                bg.setStroke(dp(3), onSurface);
+            }
+            dot.setBackground(bg);
+            dot.setContentDescription(getString(
+                    isFilled ? R.string.tab_description_filled : R.string.tab_description, i + 1));
+            dot.setOnClickListener(v -> {
+                dialog[0].dismiss();
+                chooseSlotAndImport(slot, uris);
+            });
+            row.addView(dot);
+        }
+        dialog[0] = new MaterialAlertDialogBuilder(this)
+                .setTitle(getResources().getQuantityString(
+                        R.plurals.share_in_title, uris.size(), uris.size()))
+                .setView(row)
+                .setNegativeButton(R.string.clear_cancel, null)
+                .show();
+    }
+
+    private void chooseSlotAndImport(int slot, List<Uri> uris) {
+        pendingImport = new PendingImport(slot, uris);
+        if (slot != currentSlot) {
+            TabLayout.Tab tab = binding.tabs.getTabAt(slot);
+            if (tab != null) {
+                tab.select();   // loads that note; runPendingImport() follows
+            }
+        } else if (loadedSlot == slot) {
+            runPendingImport();
+        }
+        // else: this note is still loading; showCurrent() will run the import when it is ready.
+    }
+
+    private void runPendingImport() {
+        PendingImport pending = pendingImport;
+        pendingImport = null;
+        if (pending == null || loadedSlot != pending.slot) {
+            return;
+        }
+        int room = NoteRules.MAX_ATTACHMENTS
+                - NoteEditorCodec.countAttachments(binding.editor.getText());
+        if (room <= 0) {
+            Toast.makeText(this, getString(R.string.limit_reached, NoteRules.MAX_ATTACHMENTS),
+                    Toast.LENGTH_SHORT).show();
+            return;
+        }
+        if (pending.uris.size() > room) {
+            Toast.makeText(this, getString(R.string.share_in_skipped, room),
+                    Toast.LENGTH_SHORT).show();
+        }
+        // Shared pictures go at the end of the note, in the order they were shared.
+        binding.editor.setSelection(binding.editor.length());
+        for (Uri uri : pending.uris.subList(0, Math.min(room, pending.uris.size()))) {
+            importUri(uri, pending.slot);
         }
     }
 

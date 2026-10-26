@@ -39,6 +39,11 @@ the two phones, depending on your device's settings; kotonote does not send them
 kotonote sends a note's contents to another app only when you press the share button and choose
 a destination. What that app does with the content is governed by that app's own policy.
 
+**Receiving shared items**
+
+If you share a picture or video to kotonote from another app, a copy is stored in the note you
+choose, in the same private storage as everything else.
+
 **Deleting your data**
 
 Press the clear button to delete a note and its attachments, or uninstall the app to delete
@@ -90,6 +95,11 @@ Google アカウントへコピーされることはありません。kotonote �
 
 付箋の内容が他のアプリへ渡るのは、あなたが共有ボタンを押して送り先を選んだときだけです。渡された
 内容の扱いは、そのアプリ自身のポリシーに従います。
+
+**他のアプリから受け取る共有**
+
+他のアプリから kotonote へ画像や動画を共有すると、選んだ付箋のコピーが、他のデータと同じアプリ専用
+領域に保存されます。
 
 **データの削除**
 

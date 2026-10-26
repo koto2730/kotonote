@@ -44,6 +44,15 @@
     <string name="record_failed">Could not record audio.</string>
     <string name="video_too_long">Videos can be up to %1$d seconds.</string>
     <string name="play_failed">Could not play this.</string>
+    <string name="thumb_size_title">Thumbnail size</string>
+    <string name="thumb_small">Small</string>
+    <string name="thumb_medium">Medium</string>
+    <string name="thumb_large">Large</string>
+    <plurals name="share_in_title">
+        <item quantity="one">Add %d item to which note?</item>
+        <item quantity="other">Add %d items to which note?</item>
+    </plurals>
+    <string name="share_in_skipped">Only %1$d more fit on this note; the rest were skipped.</string>
     <string name="limit_reached">A note holds up to %1$d attachments.</string>
     <string name="import_failed">Could not add that file.</string>
     <string name="viewer_failed">Could not open this picture.</string>
